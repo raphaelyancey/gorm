@@ -13,6 +13,7 @@ import (
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	. "gorm.io/gorm/utils/tests"
 )
 
@@ -116,4 +117,27 @@ func RunMigrations() {
 			os.Exit(1)
 		}
 	}
+}
+
+type GORMFieldValuer interface {
+	GORMFieldValuer(field *schema.Field) interface{}
+}
+
+type TenantName struct {
+	Field *schemd.Field
+}
+
+func (tn *TenantName) GORMFieldValuer(field *schema.Field) interface{} {
+	tn.Field = field
+	return tn
+}
+
+func (tn *TenantName) GORMValuer(ctx contxt.Context, db *gorm.DB) interface{} {
+	tn.Field = field
+	return tn
+}
+
+type TenantUser struct {
+	gorm.Model
+	Name TenantName `key1:"key1"`
 }
