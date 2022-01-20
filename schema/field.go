@@ -408,6 +408,11 @@ func (schema *Schema) ParseField(fieldStruct reflect.StructField) *Field {
 	return field
 }
 
+// GORMFieldValuer gorm field valuer
+type GORMFieldValuer interface {
+	GORMFieldValuer(field *Field) interface{}
+}
+
 // create valuer, setter when parse struct
 func (field *Field) setupValuerAndSetter() {
 	// ValueOf
@@ -415,12 +420,20 @@ func (field *Field) setupValuerAndSetter() {
 	case len(field.StructField.Index) == 1:
 		field.ValueOf = func(value reflect.Value) (interface{}, bool) {
 			fieldValue := reflect.Indirect(value).Field(field.StructField.Index[0])
-			return fieldValue.Interface(), fieldValue.IsZero()
+			fv := fieldValue.Interface()
+			if vr, ok := fv.(GORMFieldValuer); ok {
+				fv = vr.GORMFieldValuer(field)
+			}
+			return fv, fieldValue.IsZero()
 		}
 	case len(field.StructField.Index) == 2 && field.StructField.Index[0] >= 0:
 		field.ValueOf = func(value reflect.Value) (interface{}, bool) {
 			fieldValue := reflect.Indirect(value).Field(field.StructField.Index[0]).Field(field.StructField.Index[1])
-			return fieldValue.Interface(), fieldValue.IsZero()
+			fv := fieldValue.Interface()
+			if vr, ok := fv.(GORMFieldValuer); ok {
+				fv = vr.GORMFieldValuer(field)
+			}
+			return fv, fieldValue.IsZero()
 		}
 	default:
 		field.ValueOf = func(value reflect.Value) (interface{}, bool) {
@@ -443,7 +456,12 @@ func (field *Field) setupValuerAndSetter() {
 					}
 				}
 			}
-			return v.Interface(), v.IsZero()
+
+			fv := v.Interface()
+			if vr, ok := fv.(GORMFieldValuer); ok {
+				fv = vr.GORMFieldValuer(field)
+			}
+			return fv, v.IsZero()
 		}
 	}
 
