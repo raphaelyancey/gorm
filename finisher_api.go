@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/google/uuid"
+
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -255,6 +257,7 @@ func (tx *DB) assignInterfacesToValue(values ...interface{}) {
 		}
 	}
 }
+
 // FirstOrInit gets the first matched record or initialize a new instance with given conditions (only works with struct or map conditions)
 func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
 	queryTx := db.Limit(1).Order(clause.OrderByColumn{
@@ -549,7 +552,8 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 	if committer, ok := db.Statement.ConnPool.(TxCommitter); ok && committer != nil {
 		// nested transaction
 		if !db.DisableNestedTransaction {
-			err = db.SavePoint(fmt.Sprintf("sp%p", fc)).Error
+			rand := uuid.New()
+			err = db.SavePoint(fmt.Sprintf("%s", rand)).Error
 			if err != nil {
 				return
 			}
@@ -557,7 +561,7 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 			defer func() {
 				// Make sure to rollback when panic, Block error or Commit error
 				if panicked || err != nil {
-					db.RollbackTo(fmt.Sprintf("sp%p", fc))
+					db.RollbackTo(fmt.Sprintf("%s", rand))
 				}
 			}()
 		}
