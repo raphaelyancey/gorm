@@ -552,18 +552,18 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 	if committer, ok := db.Statement.ConnPool.(TxCommitter); ok && committer != nil {
 		// nested transaction
 		if !db.DisableNestedTransaction {
-			rand := uuid.New()
-			err = db.SavePoint(fmt.Sprintf("%s", rand)).Error
+			uuid := strings.Replace(uuid.NewString(), "-", "", -1)
+			err = db.SavePoint(fmt.Sprintf("sp_%s", uuid)).Error
 			if err != nil {
 				return
 			}
 
-			defer func() {
+			defer func(name string) {
 				// Make sure to rollback when panic, Block error or Commit error
 				if panicked || err != nil {
-					db.RollbackTo(fmt.Sprintf("%s", rand))
+					db.RollbackTo(fmt.Sprintf("sp_%s", name))
 				}
-			}()
+			}(uuid)
 		}
 
 		err = fc(db.Session(&Session{}))
