@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"gorm.io/gorm"
-	. "gorm.io/gorm/utils/tests"
+	"github.com/raphaelyancey/gorm/gorm"
+	. "github.com/raphaelyancey/gorm/gorm/utils/tests"
 )
 
 func NameIn1And2(d *gorm.DB) *gorm.DB {

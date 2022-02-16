@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"gorm.io/gorm"
-	. "gorm.io/gorm/utils/tests"
+	"github.com/raphaelyancey/gorm/gorm"
+	. "github.com/raphaelyancey/gorm/gorm/utils/tests"
 )
 
 func TestCount(t *testing.T) {
@@ -153,5 +153,5 @@ func TestCount(t *testing.T) {
 		}).Count(&count12).Error; err != gorm.ErrPreloadNotAllowed {
 		t.Errorf("should returns preload not allowed error, but got %v", err)
 	}
-	
+
 }

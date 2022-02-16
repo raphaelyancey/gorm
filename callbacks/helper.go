@@ -3,8 +3,8 @@ package callbacks
 import (
 	"sort"
 
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
+	"github.com/raphaelyancey/gorm/gorm"
+	"github.com/raphaelyancey/gorm/gorm/clause"
 )
 
 // ConvertMapToValuesForCreate convert map to values

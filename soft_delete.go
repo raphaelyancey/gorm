@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"gorm.io/gorm/clause"
-	"gorm.io/gorm/schema"
+	"github.com/raphaelyancey/gorm/gorm/clause"
+	"github.com/raphaelyancey/gorm/gorm/schema"
 )
 
 type DeletedAt sql.NullTime
